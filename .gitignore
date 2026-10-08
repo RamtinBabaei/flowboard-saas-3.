@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.DS_Store
+coverage
+playwright-report
+
+*.tsbuildinfo
+.codex
+upload
+
+*.zip

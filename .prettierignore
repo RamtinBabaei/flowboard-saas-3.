@@ -1,0 +1,9 @@
+node_modules
+dist
+package-lock.json
+.codex
+upload
+public/*.svg
+vite.config.js
+vite.config.d.ts
+*.tsbuildinfo
