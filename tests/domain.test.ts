@@ -13,7 +13,7 @@ describe("FlowBoard domain rules", () => {
   it("flags incomplete tasks with past due dates", () =>
     expect(
       isOverdue(
-        data.tasks.find((t) => t.id === "t-5")!,
+        { ...data.tasks.find((t) => t.id === "t-5")!, dueDate: "2026-10-07" },
         "2026-10-08",
       ),
     ).toBe(true));
