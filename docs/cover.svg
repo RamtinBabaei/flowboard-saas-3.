@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="FlowBoard — Project planning across boards, lists and calendars">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101827"/><stop offset="1" stop-color="#172b4d"/></linearGradient></defs>
+<rect width="1200" height="300" rx="22" fill="url(#bg)"/>
+<circle cx="1100" cy="80" r="170" fill="#3b82f6" opacity=".09"/><circle cx="1100" cy="80" r="115" fill="none" stroke="#60a5fa" stroke-width="1" opacity=".3"/>
+<path d="M985 128l-32 22 32 22m96-44 32 22-32 22m-32-60-26 76" fill="none" stroke="#93c5fd" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="64" y="61" fill="#93c5fd" font-family="Arial, sans-serif" font-size="14" letter-spacing="3">PRODUCTIVITY / REACT + TYPESCRIPT</text>
+<text x="60" y="146" fill="#f8fafc" font-family="Arial, sans-serif" font-size="57" font-weight="700">FlowBoard</text>
+<text x="64" y="195" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="23">Project planning across boards, lists and calendars</text>
+<rect x="64" y="232" width="42" height="3" rx="1.5" fill="#60a5fa"/>
+<text x="118" y="240" fill="#94a3b8" font-family="Arial, sans-serif" font-size="15">RAMTIN BABAEI / FRONTEND DEVELOPMENT</text></svg>
