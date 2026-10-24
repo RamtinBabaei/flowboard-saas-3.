@@ -23,6 +23,11 @@ import {
 } from "./services/persistence";
 import { MockApi } from "./services/mockApi";
 import { seedData } from "./mock/seed";
+import {
+  RemoteApi,
+  remoteBootstrap,
+  remoteEnabled,
+} from "./services/apiClient";
 
 export type Store = AppData & {
   hydrated: boolean;
@@ -59,40 +64,57 @@ const Context = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData | null>(null);
   const [error, setError] = useState<string>();
-  const api = useRef<MockApi>();
+  const api = useRef<MockApi | RemoteApi>();
   useEffect(() => {
     let alive = true;
-    readPersisted()
-      .then((d) => {
-        if (alive) {
-          setData(d);
-          api.current = new MockApi(d, writePersisted);
-        }
-      })
-      .catch(() => {
-        if (alive) {
-          const d = seedData();
-          setData(d);
-          api.current = new MockApi(d, writePersisted);
-          setError(
+    const localFallback = (message?: string) => {
+      if (!alive) return;
+      const d = seedData();
+      setData(d);
+      api.current = new MockApi(d, writePersisted);
+      if (message) setError(message);
+    };
+    if (remoteEnabled) {
+      remoteBootstrap()
+        .then((d) => {
+          if (alive) {
+            setData(d);
+            api.current = new RemoteApi(d);
+            setError(undefined);
+          }
+        })
+        .catch(() => localFallback());
+    } else {
+      readPersisted()
+        .then((d) => {
+          if (alive) {
+            setData(d);
+            api.current = new MockApi(d, writePersisted);
+          }
+        })
+        .catch(() =>
+          localFallback(
             "Saved demo data could not be loaded. A fresh copy is ready.",
-          );
-        }
-      });
+          ),
+        );
+    }
     return () => {
       alive = false;
     };
   }, []);
-  const run = useCallback(async (fn: (client: MockApi) => Promise<AppData>) => {
-    if (!api.current) throw new Error("FlowBoard is still loading.");
-    try {
-      const next = await fn(api.current);
-      setData(next);
-      setError(undefined);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
-    }
-  }, []);
+  const run = useCallback(
+    async (fn: (client: MockApi | RemoteApi) => Promise<AppData>) => {
+      if (!api.current) throw new Error("FlowBoard is still loading.");
+      try {
+        const next = await fn(api.current);
+        setData(next);
+        setError(undefined);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong.");
+      }
+    },
+    [],
+  );
   const value = useMemo<Store | undefined>(() => {
     if (!data) return undefined;
     return {
@@ -100,7 +122,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       hydrated: true,
       error,
       reset: async () => {
-        await clearPersisted();
+        if (!remoteEnabled) await clearPersisted();
         await run((c) => c.reset());
       },
       setActiveWorkspace: async (id) => run((c) => c.setWorkspace(id)),
