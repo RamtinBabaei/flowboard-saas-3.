@@ -5,13 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "wrangler dev --config wrangler.jsonc --local --port 8787",
     "build": "tsc -b && vite build",
+    "build:api": "wrangler deploy --config wrangler.jsonc --dry-run",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:migrate:local": "wrangler d1 migrations apply flowboard-production --local --config wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply flowboard-production --remote --config wrangler.jsonc"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",
@@ -24,12 +28,14 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261024.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "fake-indexeddb": "^6.2.5",
@@ -39,6 +45,7 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^6.0.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "^4.151.0"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flowboard-api",
+  "main": "api/worker.ts",
+  "compatibility_date": "2026-10-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "persist": true,
+    },
+  },
+  "vars": {
+    "ENVIRONMENT": "production",
+    "FRONTEND_ORIGIN": "https://ramtinbabaei.github.io",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flowboard-production",
+      "database_id": "2e069ff3-c02d-4daa-b829-a9eb951fe6e8",
+      "migrations_dir": "migrations",
+    },
+  ],
+}

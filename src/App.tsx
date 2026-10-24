@@ -81,6 +81,13 @@ import {
   projectFormSchema,
   taskFormSchema,
 } from "./domain/schema";
+import {
+  remoteEnabled,
+  remoteDemo,
+  remoteLogin,
+  remoteLogout,
+  remoteRegister,
+} from "./services/apiClient";
 
 const formatDate = (date?: string) =>
   date
@@ -134,6 +141,19 @@ function App() {
     </Routes>
   );
 }
+
+async function enterDemo(navigate: ReturnType<typeof useNavigate>) {
+  if (remoteEnabled) {
+    try {
+      await remoteDemo();
+    } catch {
+      // The local demo remains available when the API is not configured locally.
+    }
+  }
+  sessionStorage.setItem("flowboard:session", "active");
+  navigate("/app");
+}
+
 function Landing() {
   const navigate = useNavigate();
   return (
@@ -156,10 +176,7 @@ function Landing() {
           <ThemeToggle compact />
           <button
             className="button button-dark button-sm"
-            onClick={() => {
-              sessionStorage.setItem("flowboard:session", "active");
-              navigate("/app");
-            }}
+            onClick={() => void enterDemo(navigate)}
           >
             Try demo <ArrowRight size={15} />
           </button>
@@ -183,10 +200,7 @@ function Landing() {
             <div className="hero-actions">
               <button
                 className="button button-primary"
-                onClick={() => {
-                  sessionStorage.setItem("flowboard:session", "active");
-                  navigate("/app");
-                }}
+                onClick={() => void enterDemo(navigate)}
               >
                 Explore the demo <ArrowRight size={17} />
               </button>
@@ -526,21 +540,32 @@ function ThemeToggle({ compact = false }: { compact?: boolean }) {
   );
 }
 function AuthPage({ signUp = false }: { signUp?: boolean }) {
-  const navigate = useNavigate();
   const [email, setEmail] = useState(signUp ? "" : "mina@flowboard.dev");
   const [password, setPassword] = useState("flowboard");
   const [name, setName] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const parsed = authFormSchema.safeParse({ name, email, password });
     if (!parsed.success)
       return setError(
         parsed.error.issues[0]?.message ?? "Check the form and try again.",
       );
+    if (remoteEnabled) {
+      try {
+        if (signUp) await remoteRegister(name, email, password);
+        else await remoteLogin(email, password);
+      } catch (requestError) {
+        return setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to sign in.",
+        );
+      }
+    }
     sessionStorage.setItem("flowboard:session", "active");
-    navigate("/app");
+    window.location.assign("/app");
   };
   return (
     <div className="auth-page">
@@ -695,6 +720,7 @@ function ProtectedApp() {
   return (
     <AppShell
       onLogout={() => {
+        if (remoteEnabled) void remoteLogout().catch(() => undefined);
         sessionStorage.removeItem("flowboard:session");
         setAuthenticated(false);
       }}
